@@ -463,12 +463,12 @@ BEGIN
 
 OPEN CCA FOR
 
-    SELECT 	    E.FirstName, E.LastName, Count(CE.CampaignID) AS TotalCampaignedJoined
+    SELECT 	E.FirstName, E.LastName, Count(CE.CampaignID) AS TotalCampaignedJoined
     FROM    	CampaignEmployee CE
     INNER JOIN  Employee E
     ON          E.EmployeeID = CE.EmployeeID
     GROUP BY 	E.FirstName, E.LastName
-    HAVING 	    COUNT(CE.CampaignID) > 0
+    HAVING 	COUNT(CE.CampaignID) > 0
     ORDER BY 	E.FirstName, E.LastName;
 
 DBMS_SQL.RETURN_RESULT(CCA);    
@@ -478,7 +478,7 @@ END;
 
 
 --Query 2 
---DESCRIPTION: Used to retrieve name, and contact information of donors who have donated and employees who have participated in at least 1 campaign
+--DESCRIPTION: Used to retrieve the name and contact information of donors who have donated and employees who have participated in at least 1 campaign
 --Using Union 
 
 CREATE OR REPLACE PROCEDURE RetreivePeopleData_sp
@@ -489,8 +489,8 @@ BEGIN
 
 OPEN RPD FOR
 
-    SELECT 	    CONCAT(D.FirstName, CONCAT(' ', D.LastName)) AS FullName, D.Email
-    FROM		Donor D
+    SELECT 	CONCAT(D.FirstName, CONCAT(' ', D.LastName)) AS FullName, D.Email
+    FROM	Donor D
     INNER JOIN  Donation DN
     ON          D.DonorID = DN.DonorID
     WHERE       D.DonorID IS NOT NULL
@@ -509,7 +509,7 @@ END;
 
 
 --Query 3
---DESCRIPTION: Find the donor with the highest amount donated at once. Show donor first name, last name and the amount.
+--DESCRIPTION: Find the donor with the highest amount donated at once. Show the donor's first name, last name, and the amount.
 --Using Nested queries
 
 CREATE OR REPLACE PROCEDURE FindDonor_sp
@@ -540,12 +540,12 @@ END;
 
 CREATE OR REPLACE PROCEDURE InsertDonation_sp
 (
-	CampaignDate		    IN  DATE,
-    CampaignLocation       IN  VARCHAR2,
-    DonorFirstName         IN  NVARCHAR2,
-	DonorLastName		   IN  NVARCHAR2,
-    DonationLocation       IN  VARCHAR2,
-    AmountDonated          IN  DECIMAL
+	CampaignDate		IN  DATE,
+    	CampaignLocation       	IN  VARCHAR2,
+   	DonorFirstName        	IN  NVARCHAR2,
+	DonorLastName		IN  NVARCHAR2,
+  	DonationLocation       	IN  VARCHAR2,
+    	AmountDonated          	IN  DECIMAL
 )
 
 AS
@@ -573,7 +573,7 @@ AS
 
 ----------------------------------------------------------------------------------------------------*/
 
-    DonorID	INT;
+    	DonorID		INT;
 	CampaignID	INT;
 
 BEGIN 
@@ -606,7 +606,7 @@ END;
 
 
 --Query 5
---DESCRIPTION: Find the donor who has donated more than 1 time. Show donors' full name and number of donation
+--DESCRIPTION: Find the donor who has donated more than once. Show donors' full name and number of donation
 --Using Aggregate Having
 
 CREATE OR REPLACE PROCEDURE FindRepeatedDonor_sp
@@ -633,7 +633,7 @@ END;
 
 --Query 6 
 --DESCRIPTION: Evaluate the effectiveness of campaigns.
---Using Case statement
+--Using Case Statement
 
 CREATE OR REPLACE PROCEDURE EvaluateCampaign_sp
 
