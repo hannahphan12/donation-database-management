@@ -21,7 +21,6 @@ DROP VIEW ThirdQuarterDonor_vw;
 
 */
 
--- This is VT Consultant Group's code to physically design, implement, and load data for Vietnam Children Association
 
 -- Note that because this non-profit organization only operates in Denver, Colorado, all address and location fields in the tables are street address. 
 
@@ -89,6 +88,7 @@ CREATE TABLE CampaignEmployee (
         CONSTRAINT FK_CampaignEmployee_CampaignID FOREIGN KEY (CampaignID) REFERENCES Campaign(CampaignID)
 );
 
+-------------------------------------------------------------------------------------------------------------------
 --Inserting Data
 
 --Data for Donor Table
@@ -453,32 +453,22 @@ SELECT 1 FROM dual;
 
 
 
-
-
 ----------------------------------------------------------------------------------------------------------------------------------------------------
---STORED PROCEDURES: This is VT Consultant Group's code to run some query for Vietnam Children Association
+
+--STORED PROCEDURES
 
 --Query 1:
+--DESCRIPTION: Count how many campaigns an employee has joined. Show only employees who have participated in at least 1 campaign.
 
 CREATE OR REPLACE PROCEDURE CountCampaign_sp
 
 AS CCA SYS_REFCURSOR; 
 
-
-/*-------------------------------------------------------------------------------------------------
-CREATED: Oct 31, 2022
-AUTHOR:  Vy Vo and Thi Phan 
-DESCRIPTION: Count how many campaigns an employee has joined. Show only employees who have participated in at least 1 campaign.
-
- Example: EXEC CountCampaign_sp
-	 
-----------------------------------------------------------------------------------------------------*/
-
 BEGIN
 
 OPEN CCA FOR
 
-    SELECT 	    E.FirstName, E.LastName, Count(CE.CampaignID) AS TotalCampaignedJoined
+    SELECT 	E.FirstName, E.LastName, Count(CE.CampaignID) AS TotalCampaignedJoined
     FROM    	CampaignEmployee CE
     INNER JOIN  Employee E
     ON          E.EmployeeID = CE.EmployeeID
@@ -495,28 +485,17 @@ END;
 
 
 --Query 2 (Using Union):
-
+--DESCRIPTION: Used to retrieve the name, and contact information of donors who have donated and employees who have participated in at least 1 campaign
 
 CREATE OR REPLACE PROCEDURE RetreivePeopleData_sp
 
 AS RPD SYS_REFCURSOR; 
 
-
-/*-------------------------------------------------------------------------------------------------
-CREATED: Oct 31, 2022
-AUTHOR:  Vy Vo and Thi Phan 
-DESCRIPTION: Used to retrieve name, and contact information of donors who have donated and employees 
-who have participated in at least 1 campaign
-
- Example: EXEC RetreivePeopleData_sp
-	
-----------------------------------------------------------------------------------------------------*/
-
 BEGIN
 
 OPEN RPD FOR
 
-    SELECT 	    CONCAT(D.FirstName, CONCAT(' ', D.LastName)) AS FullName, D.Email
+    SELECT 	CONCAT(D.FirstName, CONCAT(' ', D.LastName)) AS FullName, D.Email
     FROM		Donor D
     INNER JOIN  Donation DN
     ON          D.DonorID = DN.DonorID
@@ -534,24 +513,14 @@ DBMS_SQL.RETURN_RESULT(RPD);
     
 END;
 /
-
-
-
+	
+	
 --Query 3 (Utilizing Nested Query)
+--DESCRIPTION: Find the donor with the highest amount donated at once. Show the donor's first name, last name, and the amount.
 
 CREATE OR REPLACE PROCEDURE FindDonor_sp
 
 AS FD SYS_REFCURSOR; 
-
-
-/*-------------------------------------------------------------------------------------------------
-CREATED: Oct 31, 2022
-AUTHOR:  Vy Vo and Thi Phan 
-DESCRIPTION: Find the donor with the highest amount donated at once. Show donor first name, last name and the amount.
-
- Example: EXEC FindDonor_sp
-	 
-----------------------------------------------------------------------------------------------------*/
 
 BEGIN
 
@@ -571,24 +540,23 @@ DBMS_SQL.RETURN_RESULT(FD);
 END;
 /
 
+	
 --Query 4: Utilizing parameters (transaction query) 
-
+--DESCRIPTION: insert data for new donations
+	
 CREATE OR REPLACE PROCEDURE InsertDonation_sp
 (
-	pCampaignDate			IN  DATE,
-    pCampaignLocation       IN  VARCHAR2,
-    pDonorFirstName         IN  NVARCHAR2,
-	pDonorLastName		    IN  NVARCHAR2,
-    pDonationLocation       IN  VARCHAR2,
-    pAmountDonated          IN  DECIMAL
+	pCampaignDate		IN  DATE,
+	pCampaignLocation       IN  VARCHAR2,
+    	pDonorFirstName         IN  NVARCHAR2,
+	pDonorLastName		IN  NVARCHAR2,
+  	pDonationLocation       IN  VARCHAR2,
+    	pAmountDonated          IN  DECIMAL
 )
 
 AS
 
 /*-------------------------------------------------------------------------------------------------
-CREATED: Oct 31, 2020
-AUTHOR:  Vy Vo and Thi Phan 
-DESCRIPTION: Used to insert data for new donation
 
  Example: 
         DECLARE 
@@ -611,7 +579,7 @@ DESCRIPTION: Used to insert data for new donation
 
 ----------------------------------------------------------------------------------------------------*/
 
-    vDonorID	INT;
+    	vDonorID	INT;
 	vCampaignID	INT;
 
 BEGIN 
@@ -644,20 +612,11 @@ END;
 
 
 --Query 5 (Query using aggregate with having)
+--DESCRIPTION: Find the donor who has donated more than 1 time. Show donors' full name and number of donation
 
 CREATE OR REPLACE PROCEDURE FindRepeatedDonor_sp
 
 AS FRD SYS_REFCURSOR; 
-
-
-/*-------------------------------------------------------------------------------------------------
-CREATED: Oct 31, 2022
-AUTHOR:  Vy Vo and Thi Phan 
-DESCRIPTION: Find the donor who has donated more than 1 time. Show donors' full name and number of donation
-
- Example: EXEC FindRepeatedDonor_sp
-	 
-----------------------------------------------------------------------------------------------------*/
 
 BEGIN
 
@@ -677,23 +636,16 @@ END;
 /
 
 
---Query 6 (Using Case statement)
+--Query 6: Using Case statement
+/* DESCRIPTION: Evaluate the effectiveness of all campaigns. If the campaign has generated 1 donation, it is "Effective"; 
+	if it has not generated any donation, it is "Not Effective"; 
+	and if it has generated more than 1 donation, it is " Very Effective". 
+	Show CampaignID, DampaignDate, and CampaignLocation. */
+
 
 CREATE OR REPLACE PROCEDURE EvaluateCampaign_sp
 
 AS EC SYS_REFCURSOR; 
-
-
-/*-------------------------------------------------------------------------------------------------
-CREATED: Oct 31, 2022
-AUTHOR:  Vy Vo and Thi Phan 
-DESCRIPTION: Evaluate the effectiveness of all campaigns. If the campaign has generated 1 donation, it is "Effective"; 
-if it has not generated any donation, it is "Not Effective"; and if it has generated more than 1 donations, it is " Very Effective". 
-Show CampaignID, DampaignDate and CampaignLocation
-
- Example: EXEC EvaluateCampaign_sp
-	 
-----------------------------------------------------------------------------------------------------*/
 
 BEGIN
 
@@ -721,24 +673,21 @@ END;
 
      
             
--- Query 7 
-
+-- Query 7:
+--DESCRIPTION: Insert data for new employees
 CREATE OR REPLACE PROCEDURE InsertEmployee_sp
 (
-	pFirstName			    IN  VARCHAR2,
-    pLastName               IN  VARCHAR2,
-    pEmail                  IN  VARCHAR2,
-	pPhone      		    IN  NVARCHAR2
+	pFirstName		IN  VARCHAR2,
+    	pLastName               IN  VARCHAR2,
+    	pEmail                  IN  VARCHAR2,
+	pPhone      		IN  NVARCHAR2
 )
 
 AS
 
 /*-------------------------------------------------------------------------------------------------
-CREATED: Oct 31, 2020
-AUTHOR:  Vy Vo and Thi Phan 
-DESCRIPTION: Used to insert data for new employees
 
- Example: 
+Example: 
         DECLARE 
         pFirstName	 VARCHAR2(30);
         pLastName    VARCHAR2(30);
@@ -767,7 +716,7 @@ BEGIN
 	SELECT	E.EmployeeID INTO vEmployeeID
 	FROM	Employee E
 	WHERE	E.EmployeeID = (SELECT MAX (E.EmployeeID)
-                            FROM   Employee E);
+                            	FROM   Employee E);
 
 
 	--Do the final insert
@@ -783,24 +732,14 @@ END;
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------
---VIEW: This is VT Consultant Group's code to run some query for Vietnam Children Association   
 
+--VIEW
 --Query 1:  
+--DESCRIPTION: One receiver has received one or more donations. This query is used to find the average amount received by each receiver.
 
 CREATE VIEW	AvgAmountReceived_vw
 
 AS
-
-/*-------------------------------------------------------------------------------------------------
-CREATED: November 6, 2022
-AUTHOR:  Vy Vo and Han Phan
-DESCRIPTION: As one receiver have received one or more donation. This query is use to find the average amount received by each receiver.
-
- Example: SELECT    ReceiverID, OrganizationName, AvgAmountReceived 
-		  FROM      AvgAmountReceived_vw;
-	
-----------------------------------------------------------------------------------------------------*/
-
 
 SELECT      R.ReceiverID, R.OrganizationName, ROUND(AVG(DR1.AmountReceived)) AS AvgAmountReceived 
 FROM        DonationReceiver DR1
@@ -810,20 +749,12 @@ GROUP BY    R.ReceiverID, R.OrganizationName
 ORDER BY    3;
 /
 
+--Query 2:
+--DESCRIPTION: Find the donors that donated in the third quarter of the year of 2022
 
 CREATE OR REPLACE VIEW ThirdQuarterDonor_vw
 
-AS  
-
-/*-------------------------------------------------------------------------------------------------
-CREATED: December 1, 2022
-AUTHOR:  VT Group 
-DESCRIPTION: Find the donors that donated in the third quarter of this year (2022).
-
-EXAMPLE:    SELECT   FirstName, LastName
-            FROM    ThirdQuarterDonor_vw;
-----------------------------------------------------------------------------------------------------*/
-
+AS
 
 SELECT      D.FirstName, D.LastName
 FROM        Donor D
