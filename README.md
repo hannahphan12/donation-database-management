@@ -8,3 +8,7 @@ techniques to drive database management.
 missing values, normalizing data, etc.
 - Analyzing data sets and creating a visualization to assist the leadership in understanding the
 organization’s activities and performance.
+
+### Prerequisites
+* Oracle SQL Developer
+* Installing from [Oracle Technology Network](https://www.oracle.com/technetwork/developer-tools/sql-developer/downloads/index.html)
